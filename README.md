@@ -1,4 +1,4 @@
-# windows_remove_passwd
+# clear_windows_passwd
 
 
 change_passwd.sh is a shell script .
