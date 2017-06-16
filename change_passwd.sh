@@ -1,5 +1,15 @@
 #!/bin/bash
 # The os is Ubuntu
+# Author : miner_k
+# version : 0.1
+
+check_sys(){
+	os=$(lsb_release -a | grep "Distributor ID" | awk -F' ' '{print $NF}')
+	if [ $os != 'Ubuntu' ];then
+		echo "这个操作系统不是Ubuntu，请使用Ubuntu操作系统"
+		exit 2
+	fi
+}
 
 menu(){
 	clear
@@ -31,9 +41,10 @@ install_untils(){
 list_disk(){
 	clear
 	cat <<-EOF
-	##################
+	##################################
 	#查看新的磁盘
-	##################
+	#如果挂载的系统盘是xvbd2,就写xvdb2
+	##################################
 	EOF
 	lsblk
 }
@@ -51,6 +62,7 @@ change_pw(){
 }
 
 
+check_sys
 
 while :
 do
