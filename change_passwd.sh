@@ -1,7 +1,7 @@
 #!/bin/bash
 # The os is Ubuntu
 # Author : miner_k
-# version : 0.1
+# version : 0.2
 
 check_sys(){
 	os=$(lsb_release -a | grep "Distributor ID" | awk -F' ' '{print $NF}')
@@ -11,20 +11,6 @@ check_sys(){
 	fi
 }
 
-menu(){
-	clear
-	cat <<-EOF
-	#############################################
-	1.安装ntfs-3g和chntpw
-	2.挂载windows的系统盘
-	3.全自动安装（系统是默认的，Ubuntu是新购买的）
-		[挂载的windows系统盘位置是/dev/xvdb2]
-		[步骤4可以省略1-3]
-	4.卸载windows的系统盘
-	5.退出
-	#############################################
-	EOF
-}
 
 
 #install ntfs-3g and chntpw
@@ -38,20 +24,6 @@ install_untils(){
 }
 
 
-list_disk(){
-	clear
-	cat <<-EOF
-	##################################
-	#查看新的磁盘
-	#如果挂载的系统盘是xvbd2,就写xvdb2
-	##################################
-	EOF
-	lsblk
-}
-
-
-
-
 change_pw(){
 	
 	mount -t ntfs-3g /dev/$1 /mnt/
@@ -62,28 +34,30 @@ change_pw(){
 }
 
 
+
+remove_pw(){	
+install_untils
+change_pw xvdb2 <<EOF
+1
+q
+y
+EOF
+
+umount /mnt
+}
+
+
 check_sys
 
 while :
 do
-	menu
-	
-	read -p "输入对应的编号：" num
-	case $num in
-		1) install_untils
-		;;
-		2) list_disk
-		   read -p "Input the name of dev:" dev
-		   change_pw $dev
-		;;
-		3) install_untils
-		   change_pw xvdb2
-		;;
-		4) umount /mnt
-		;;
-		5) break
-		;;
-		*)
-		echo "输入错误" ;;
-	esac 
+	diskNum=$(lsblk | grep disk | wc -l)
+	if [ $diskNum -eq 2 ];then
+		lsblk -f /dev/xvdb | grep ntfs
+		if [ $? -eq 0 ];then
+			remove_pw
+			init 0
+		fi
+	fi
+
 done
