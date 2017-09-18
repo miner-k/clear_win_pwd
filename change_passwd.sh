@@ -1,7 +1,10 @@
 #!/bin/bash
 # The os is Ubuntu
 # Author : miner_k
-# version : 0.2
+# version : 0.3
+
+
+volume=""
 
 check_sys(){
 	os=$(lsb_release -a | grep "Distributor ID" | awk -F' ' '{print $NF}')
@@ -35,9 +38,29 @@ change_pw(){
 
 
 
+#判断哪个分区是系统分区
+getDisk(){
+num="$(lsblk | grep xvdb | wc -l)"
+i=1
+while [ $i -lt $num ]
+do
+        mount /dev/xvdb$i /mnt/
+        i=$[$i+1]
+        if [ -f "/mnt/Windows/System32/config/SAM" ];then
+                volume="xvdb$i"
+        else
+                umount /mnt
+                continue
+
+        fi
+done
+umount /mnt
+}
+
+
 remove_pw(){	
 install_untils
-change_pw xvdb2 <<EOF
+change_pw $volume <<EOF
 1
 q
 y
@@ -48,6 +71,8 @@ umount /mnt
 
 
 check_sys
+
+getDisk
 
 while :
 do
