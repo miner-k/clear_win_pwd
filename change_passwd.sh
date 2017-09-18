@@ -1,7 +1,7 @@
 #!/bin/bash
 # The os is Ubuntu
 # Author : miner_k
-# version : 0.3
+# version : 0.3.1
 
 
 volume=""
@@ -40,26 +40,24 @@ change_pw(){
 
 #判断哪个分区是系统分区
 getDisk(){
-num="$(lsblk | grep xvdb | wc -l)"
-i=1
-while [ $i -lt $num ]
-do
-        mount /dev/xvdb$i /mnt/
-        i=$[$i+1]
-        if [ -f "/mnt/Windows/System32/config/SAM" ];then
-                volume="xvdb$i"
-        else
-                umount /mnt
-                continue
+	num="$(lsblk | grep xvdb | wc -l)"
+	i=1
+	while [ $i -lt $num ]
+	do
+		mount -t ntfs-3g /dev/xvdb$i /mnt/
+		if [ -f "/mnt/Windows/System32/config/SAM" ];then
+			volume="xvdb$i"
 
-        fi
-done
-umount /mnt
+			umount /mnt
+		else
+			umount /mnt
+		fi
+		i=$[$i+1]
+	done
 }
 
 
 remove_pw(){	
-install_untils
 change_pw $volume <<EOF
 1
 q
@@ -72,7 +70,9 @@ umount /mnt
 
 check_sys
 
+install_untils
 getDisk
+
 
 while :
 do
@@ -82,6 +82,7 @@ do
 		if [ $? -eq 0 ];then
 			remove_pw
 			init 0
+			break
 		fi
 	fi
 
